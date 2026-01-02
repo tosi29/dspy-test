@@ -38,6 +38,15 @@ trainset = full_dataset
 
 # --- 2. Module Definition (The Student) ---
 class BlogWriter(dspy.Module):
+    """
+    あなたはプロのSEOライターです。以下のテーマに基づいて、読者の検索意図を満たすブログ記事を執筆してください。
+    
+    【制約事項】
+    - 文体は「です・ます」調で、親しみやすく書いてください。
+    - 結論から書き始め（PREP法）、具体例を交えてください。
+    - Markdown形式で見出しを適切に使ってください。
+    - 専門用語には簡単な解説を入れてください。
+    """
     def __init__(self):
         super().__init__()
         # 思考の連鎖(CoT)を使ってブログを書く
