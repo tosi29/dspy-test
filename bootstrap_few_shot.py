@@ -1,6 +1,7 @@
 import dspy
 from dspy.teleprompt import BootstrapFewShot
 import os
+import json
 
 # --- 1. Dataset Preparation ---
 # 数学の問題と解答のペア
@@ -49,7 +50,19 @@ def main():
     pred = unoptimized_program(question)
     print(f"Question: {question}")
     print(f"Answer: {pred.answer}")
-    print(f"Reasoning: {pred.reasoning}")
+    # Capture unoptimized prompt
+    # print(f"DEBUG: lm.history[-1] keys: {lm.history[-1].keys() if lm.history else 'History is empty'}")
+    # print(f"DEBUG: lm.history[-1]: {lm.history[-1] if lm.history else 'History is empty'}")
+    
+    unoptimized_prompt = "No history"
+    if lm.history:
+        last_entry = lm.history[-1]
+        if "messages" in last_entry:
+            unoptimized_prompt = last_entry["messages"]
+        elif "prompt" in last_entry:
+            unoptimized_prompt = last_entry["prompt"]
+        else:
+            unoptimized_prompt = str(last_entry) # Fallback
 
     # --- 5. Optimization (BootstrapFewShot) ---
     print("\n--- Optimizing... ---")
@@ -66,9 +79,28 @@ def main():
     print(f"Answer: {pred_optimized.answer}")
     print(f"Reasoning: {pred_optimized.reasoning}")
 
+    # Capture optimized prompt
+    optimized_prompt = "No history"
+    if lm.history:
+        last_entry = lm.history[-1]
+        if "messages" in last_entry:
+            optimized_prompt = last_entry["messages"]
+        elif "prompt" in last_entry:
+            optimized_prompt = last_entry["prompt"]
+        else:
+            optimized_prompt = str(last_entry)
+
     # 生成されたデモ（Few-shot例）を検査したい場合
     print("\n--- Prompt History ---")
-    dspy.inspect_history(n=1)
+    # dspy.inspect_history(n=1)
+
+    print("\n" + "="*20 + " Pre-Optimization Prompt " + "="*20)
+    print(json.dumps(unoptimized_prompt, indent=2, ensure_ascii=False))
+    print("="*65)
+
+    print("\n" + "="*20 + " Post-Optimization Prompt " + "="*20)
+    print(json.dumps(optimized_prompt, indent=2, ensure_ascii=False))
+    print("="*66)
 
 if __name__ == "__main__":
     main()
